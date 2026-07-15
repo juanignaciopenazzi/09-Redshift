@@ -1,3 +1,42 @@
+# Workshop · Amazon Redshift Serverless · Analytics
+
+## Objetivos
+
+1. **Data Warehouse end-to-end:** levantar un entorno con **Redshift Serverless**, cargar un dataset desde S3 con `COPY`, responder preguntas de negocio con SQL analítico y exportar un resumen a la capa `analytics/` del **Data Lake**.
+2. **Servicios AWS:** conectar lo ya visto (**S3**, opcionalmente Glue curated) con **Redshift Serverless**, **IAM roles** y el ciclo `COPY` / query / `UNLOAD`. Entender Namespace, Workgroup, RPU y el rol de **Data Sharing**.
+
+## Antes de empezar
+
+- Acceso a la consola de AWS. Usar **Redshift Serverless** (no crear un cluster provisioned).
+- Reutilizar el dataset de BA Data que ya está en el bucket (`raw/` o, preferible, `curated/` en Parquet/CSV limpio). Si no hay uno, subir un CSV de [BA Data](https://data.buenosaires.gob.ar/dataset/) a `s3://<tu-bucket>/raw/<dataset>/`.
+- Preferir un dataset acotado (idealmente &lt; 50–100 MB) para enfocarse en el flujo completo.
+- Entregable: un único `.md` en inglés con capturas y bloques SQL.
+- **Costos:** Serverless cobra compute por RPU-hora mientras hay actividad, y storage del Namespace por separado. Usar base RPU baja y **borrar Namespace + Workgroup** al terminar.
+
+⸻
+
+## Conceptos que tenés que manejar antes de tocar la consola
+
+### Namespace vs Workgroup
+
+| | **Namespace** | **Workgroup** |
+|---|---------------|---------------|
+| Qué es | Contenedor de **datos y metadata** | Capa de **compute y red** |
+| Incluye | Databases, schemas, tables, users, IAM roles asociados, encryption | Base RPU, VPC, subnets, security groups, endpoint |
+| Pregunta que responde | ¿Qué datos tengo y cómo se administran? | ¿Con cuánta capacidad y desde dónde queryo? |
+
+Un Namespace se asocia a un Workgroup. Los datos persisten en el Namespace; el Workgroup aporta el compute para ejecutar SQL.
+
+### RPU y billing
+
+- **RPU** (*Redshift Processing Unit*): unidad de compute de Serverless. Agrupa recursos de CPU, memoria y red usados para procesar queries.
+- **Base capacity:** cantidad mínima de RPU configurada en el Workgroup. Más RPU → más capacidad de compute (queries más grandes o más concurrentes); también mayor costo potencial cuando hay actividad.
+- **Compute billing:** se factura en **RPU-hours**, medido por segundos de uso efectivo. Sin queries / sin actividad de compute → no se factura esa parte.
+- **Storage billing:** independiente del compute; se cobra por el storage del Namespace (datos persistidos), típicamente en GB-mes.
+- **Implicación práctica:** un Workgroup olvidado sin queries puede no generar compute, pero el storage del Namespace sigue. Borrar ambos al cerrar.
+
+### Data Sharing (concepto — importante)
+
 - **Data Sharing** permite compartir datasets en vivo entre namespaces/clusters de Redshift **sin duplicar** datos con un ETL de copia.
 - El **producer** publica un *datashare* (schemas, tables, views). El **consumer** los consulta como objetos locales.
 - Casos típicos: multi-account, multi-team, data mesh — una fuente de verdad, varios consumidores.

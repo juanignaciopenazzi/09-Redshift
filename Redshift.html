@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REDSHIFT — Data Warehouse · Analytics | teracloud</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple-dark: #3b0764;
+      --purple-mid: #5b21b6;
+      --purple-light: #7c3aed;
+      --purple-glow: #9333ea;
+      --lime: #c8f031;
+      --lime-dim: #a8d020;
+      --white: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.82);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--purple-dark);
+      color: var(--white);
+      font-family: "Montserrat", Arial, Helvetica, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .deck {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 25%, rgba(255,255,255,0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(200,240,49,0.05) 0%, transparent 35%),
+        linear-gradient(115deg, var(--purple-dark) 0%, var(--purple-mid) 45%, var(--purple-light) 100%);
+      z-index: 0;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,0.35) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 70% 20%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 50% 45%, rgba(255,255,255,0.25) 50%, transparent 50%),
+        radial-gradient(1px 1px at 35% 35%, rgba(200,240,49,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 80% 85%, rgba(255,255,255,0.35) 50%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100vh;
+      padding: 88px 72px 88px;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      animation: fadeIn 0.35s ease;
+      overflow: hidden;
+    }
+
+    .slide.active { display: flex; }
+    .slide > * { position: relative; z-index: 1; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+      position: absolute;
+      top: 36px;
+      left: 48px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand .tera { color: var(--white); }
+    .brand .cloud-part { color: var(--lime); position: relative; }
+
+    .brand .cloud-icon {
+      display: inline-block;
+      width: 22px;
+      height: 16px;
+      margin: 0 1px;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
+
+    .slide.title-slide {
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      padding-top: 48px;
+    }
+
+    .slide.title-slide .brand {
+      top: 40px;
+      left: 48px;
+    }
+
+    .slide.title-slide h1 {
+      font-size: clamp(3.2rem, 9vw, 6.5rem);
+      margin: 0;
+      font-weight: 800;
+      font-style: italic;
+      color: var(--lime);
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 60px rgba(200, 240, 49, 0.25);
+    }
+
+    .slide.title-slide .subtitle {
+      margin-top: 24px;
+      font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+      color: var(--lime);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .slide h2 {
+      margin: 0 0 32px;
+      font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+      color: var(--lime);
+      border-bottom: 2px solid rgba(200, 240, 49, 0.35);
+      padding-bottom: 14px;
+      line-height: 1.25;
+      max-width: 920px;
+      font-weight: 700;
+    }
+
+    .slide ul {
+      margin: 0;
+      padding: 0 0 0 28px;
+      max-width: 920px;
+      list-style: none;
+    }
+
+    .slide ul li {
+      position: relative;
+      margin: 14px 0;
+      font-size: clamp(0.95rem, 1.9vw, 1.15rem);
+      line-height: 1.55;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .slide ul li::before {
+      content: "▸";
+      position: absolute;
+      left: -24px;
+      color: var(--lime);
+      font-weight: bold;
+    }
+
+    .slide ul li strong { color: var(--white); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .col {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(200, 240, 49, 0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      backdrop-filter: blur(4px);
+    }
+
+    .col h3 {
+      margin: 0 0 16px;
+      font-size: 1.1rem;
+      color: var(--lime);
+      border-bottom: 1px solid rgba(200, 240, 49, 0.25);
+      padding-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .col ul { max-width: none; padding-left: 20px; }
+    .col ul li { font-size: 0.95rem; margin: 10px 0; color: var(--text-muted); }
+
+    .flow {
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--lime);
+      border: 1px solid rgba(200, 240, 49, 0.25);
+      padding: 28px 36px;
+      border-radius: 14px;
+      font-family: "Courier New", Courier, monospace;
+      font-size: clamp(0.82rem, 1.7vw, 1rem);
+      line-height: 1.75;
+      max-width: 780px;
+      white-space: pre-line;
+    }
+
+    .slide.highlight-slide {
+      align-items: center;
+      text-align: center;
+    }
+
+    .slide.highlight-slide h2 {
+      text-align: center;
+      max-width: 800px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      border-bottom: none;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .slide.highlight-slide ul { max-width: 700px; }
+    .slide.highlight-slide ul li {
+      color: var(--white);
+      font-size: 1.15rem;
+      font-weight: 500;
+    }
+
+    code {
+      background: rgba(200, 240, 49, 0.15);
+      color: var(--lime);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 0.88em;
+      border: 1px solid rgba(200, 240, 49, 0.2);
+    }
+
+    a {
+      color: var(--lime);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    a:hover { color: var(--white); }
+
+    .doc-links {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(200, 240, 49, 0.25);
+      max-width: 920px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .doc-links p { margin: 6px 0; }
+
+    .timeline-note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.55);
+      max-width: 920px;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(59, 7, 100, 0.92);
+      border-top: 1px solid rgba(200, 240, 49, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      z-index: 100;
+      font-size: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav button {
+      background: var(--lime);
+      color: var(--purple-dark);
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .nav button:hover { background: var(--white); transform: translateY(-1px); }
+    .nav button:disabled {
+      background: rgba(200, 240, 49, 0.25);
+      color: rgba(255, 255, 255, 0.4);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav .counter {
+      font-variant-numeric: tabular-nums;
+      color: var(--lime);
+      font-weight: 600;
+    }
+
+    .nav .hint { opacity: 0.55; font-size: 12px; }
+
+    @media (max-width: 768px) {
+      .slide { padding: 80px 28px 80px; }
+      .brand { top: 24px; left: 24px; font-size: 22px; }
+      .two-col { grid-template-columns: 1fr; }
+      .nav .hint { display: none; }
+    }
+
+    @media print {
+      body { overflow: visible; }
+      .deck { height: auto; }
+      .slide {
+        display: flex !important;
+        height: auto;
+        min-height: 100vh;
+        page-break-after: always;
+      }
+      .nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <!-- 1: Title -->
+    <section class="slide title-slide active" data-slide="1">
+      <div class="brand" aria-label="teracloud">
+        <span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span>
+      </div>
+      <h1>REDSHIFT</h1>
+      <p class="subtitle">Data Warehouse · Analytics</p>
+    </section>
+
+    <!-- 2: Agenda -->
+    <section class="slide" data-slide="2">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Qué vamos a ver hoy</h2>
+      <ul>
+        <li>Dónde encaja Redshift respecto de S3, Glue y RDS.</li>
+        <li>OLTP vs OLAP y qué es un <strong>Data Warehouse</strong>.</li>
+        <li>Redshift Serverless: Namespace, Workgroup, RPU y billing.</li>
+        <li>Carga con <code>COPY</code>, query patterns y Data Sharing.</li>
+        <li>Redshift ML e integración con LLMs vía Amazon Bedrock.</li>
+        <li>Workshop práctico end-to-end con Serverless.</li>
+      </ul>
+    </section>
+
+    <!-- 3: Dónde encaja -->
+    <section class="slide" data-slide="3">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>¿Dónde encaja Redshift?</h2>
+      <ul>
+        <li><strong>S3</strong> es el storage del <strong>Data Lake</strong> (raw / curated / analytics).</li>
+        <li><strong>Glue</strong> cataloga metadatos y corre ETL.</li>
+        <li><strong>RDS / Aurora</strong> resuelve workloads transaccionales (OLTP).</li>
+        <li><strong>Redshift</strong> es el <strong>Data Warehouse</strong>: datos estructurados listos para reporting, dashboards y SQL analítico (OLAP).</li>
+        <li>No reemplaza al Data Lake ni a RDS: complementa el stack hacia analytics.</li>
+      </ul>
+    </section>
+
+    <!-- 4: OLTP vs OLAP -->
+    <section class="slide" data-slide="4">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>OLTP vs OLAP</h2>
+      <div class="two-col">
+        <div class="col">
+          <h3>OLTP — RDS / Aurora</h3>
+          <ul>
+            <li>Muchas escrituras chicas: INSERT, UPDATE, DELETE.</li>
+            <li>Operaciones sobre pocas filas (un pedido, un usuario).</li>
+            <li>Baja latencia para la aplicación.</li>
+            <li>Integrity y concurrency de transacciones.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3>OLAP — Redshift</h3>
+          <ul>
+            <li>Lecturas sobre volúmenes grandes.</li>
+            <li>Agregaciones, joins, trends históricos.</li>
+            <li>Workloads de BI y analytics.</li>
+            <li>Queries que escanean y resumen datasets.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="timeline-note">Correr dashboards pesados contra RDS productivo impacta a la app y al costo.</p>
+    </section>
+
+    <!-- 5: Data Warehouse -->
+    <section class="slide" data-slide="5">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Qué es un Data Warehouse</h2>
+      <ul>
+        <li>Repositorio central de datos <strong>estructurados</strong>, modelados para análisis — no para la app transaccional.</li>
+        <li><strong>Schema-on-write:</strong> definís tablas antes de cargar; los datos tienen que cumplir el schema.</li>
+        <li>Orientado a historial, métricas y preguntas de negocio.</li>
+        <li>Convive con el <strong>Data Lake</strong>: el lake es flexible y de bajo costo de storage; el Data Warehouse optimiza performance y consistencia para BI.</li>
+        <li>Patrón habitual: cargar desde S3 (capa curated) hacia Redshift.</li>
+      </ul>
+    </section>
+
+    <!-- 6: Redshift overview -->
+    <section class="slide" data-slide="6">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Amazon Redshift</h2>
+      <ul>
+        <li>Data Warehouse managed de AWS, con SQL compatible con PostgreSQL.</li>
+        <li>Storage <strong>columnar</strong>: lee solo las columnas que necesita la query.</li>
+        <li>Escala a datasets grandes y queries analíticas concurrentes.</li>
+        <li>Se integra con S3 (<code>COPY</code> / <code>UNLOAD</code>), Glue Data Catalog, Spectrum, Data Sharing, QuickSight, etc.</li>
+        <li>Hoy trabajamos con <strong>Redshift Serverless</strong>: sin administrar cluster, billing por compute usado.</li>
+      </ul>
+    </section>
+
+    <!-- 7: Provisioned vs Serverless -->
+    <section class="slide" data-slide="7">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Provisioned vs Serverless</h2>
+      <div class="two-col">
+        <div class="col">
+          <h3>Provisioned (cluster)</h3>
+          <ul>
+            <li>Elegís node type y cantidad de nodos.</li>
+            <li>Corre de forma continua mientras el cluster exista.</li>
+            <li>Más control operativo y de sizing.</li>
+            <li>Útil con workload predecible y sostenido.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3>Serverless</h3>
+          <ul>
+            <li>Se arma con <strong>Namespace</strong> + <strong>Workgroup</strong>.</li>
+            <li>Capacidad medida en <strong>RPU</strong>; scale automático.</li>
+            <li>Cuando no hay queries, el compute se detiene.</li>
+            <li>Útil con uso intermitente o variable.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="timeline-note">Serverless no es gratis: se factura compute cuando hay actividad, más storage. Al cerrar, eliminar Workgroup y Namespace.</p>
+    </section>
+
+    <!-- 8: Namespace vs Workgroup -->
+    <section class="slide" data-slide="8">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Namespace vs Workgroup</h2>
+      <div class="two-col">
+        <div class="col">
+          <h3>Namespace</h3>
+          <ul>
+            <li>Contenedor de <strong>datos y metadata</strong>.</li>
+            <li>Databases, schemas, tables, users.</li>
+            <li>Admin credentials, IAM roles, encryption (KMS).</li>
+            <li>Es “qué datos tengo y quién puede administrarlos”.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3>Workgroup</h3>
+          <ul>
+            <li>Capa de <strong>compute y red</strong>.</li>
+            <li>Base RPU, VPC, subnets, security groups.</li>
+            <li>Endpoint al que te conectás a queryar.</li>
+            <li>Es “con cuánta capacidad y desde dónde corro SQL”.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="timeline-note">Un Namespace se asocia a un Workgroup. Los datos viven en el Namespace; el Workgroup aporta el compute.</p>
+    </section>
+
+    <!-- 9: RPU -->
+    <section class="slide" data-slide="9">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>RPU: capacidad y billing</h2>
+      <ul>
+        <li><strong>RPU</strong> = Redshift Processing Unit. Unidad de compute de Serverless (CPU, memoria y red asociadas).</li>
+        <li><strong>Base capacity:</strong> RPU mínimos configurados en el Workgroup. Más RPU → más capacidad de compute (queries más grandes o más concurrentes).</li>
+        <li><strong>Billing de compute:</strong> se cobra por <strong>RPU-hour</strong>, en segundos de actividad. Si no hay workload, no facturás compute.</li>
+        <li><strong>Storage:</strong> se cobra por separado (datos persistidos en el Namespace), típicamente por GB-mes.</li>
+        <li>Para este workshop: base RPU baja y datasets acotados. Borrar Workgroup + Namespace al cerrar.</li>
+      </ul>
+    </section>
+
+    <!-- 10: Columnar -->
+    <section class="slide" data-slide="10">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Por qué el almacenamiento columnar importa en analytics</h2>
+      <ul>
+        <li>OLTP suele necesitar la <strong>fila completa</strong>; analytics suele necesitar <strong>pocas columnas + agregaciones</strong>.</li>
+        <li>Columnar reduce I/O, mejora compresión y acelera <code>SUM</code>, <code>AVG</code>, <code>GROUP BY</code>.</li>
+        <li>Misma idea que Parquet en el Data Lake, aplicada dentro del Data Warehouse.</li>
+        <li><code>SELECT barrio, SUM(monto)</code> no tiene que leer columnas irrelevantes del row.</li>
+      </ul>
+    </section>
+
+    <!-- 11: COPY -->
+    <section class="slide" data-slide="11">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Carga de datos: COPY desde S3</h2>
+      <ul>
+        <li>Patrón estándar: <strong>S3 → Redshift</strong> con <code>COPY</code> (bulk load paralelo).</li>
+        <li><code>INSERT</code> fila por fila no escala para cargas analíticas.</li>
+        <li>Requisitos: tabla destino, path S3, IAM role con acceso al bucket, formato (CSV, Parquet, etc.).</li>
+        <li><code>UNLOAD</code> es el camino inverso: resultados de Redshift hacia S3.</li>
+        <li>Es el bridge natural con el Data Lake de las clases anteriores.</li>
+      </ul>
+    </section>
+
+    <!-- 12: Redshift vs Athena -->
+    <section class="slide" data-slide="12">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Redshift vs Athena</h2>
+      <div class="two-col">
+        <div class="col">
+          <h3>Athena</h3>
+          <ul>
+            <li>Query sobre el Data Lake sin mover datos.</li>
+            <li>Schema-on-read + Glue Data Catalog.</li>
+            <li>Billing por data scanned.</li>
+            <li>Fuerte para exploración y validación.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3>Redshift</h3>
+          <ul>
+            <li>Datos cargados al Data Warehouse (o vía Spectrum).</li>
+            <li>Schema-on-write, optimizado para BI.</li>
+            <li>Serverless: billing por RPU-hour + storage.</li>
+            <li>Fuerte para dashboards recurrentes y SQL complejo.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="timeline-note">No son excluyentes: Athena para explorar el lake; Redshift para reporting estable y concurrency controlada.</p>
+    </section>
+
+    <!-- 13: Data Sharing -->
+    <section class="slide" data-slide="13">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Data Sharing</h2>
+      <ul>
+        <li>Permite <strong>compartir datos en vivo</strong> entre namespaces/clusters de Redshift — sin copiar datasets con ETL.</li>
+        <li>Producer otorga acceso (datashare) a schemas, tables o views; consumer los consulta como objetos locales.</li>
+        <li>Sirve para multi-account, multi-team y data mesh: una fuente de verdad, varios consumidores.</li>
+        <li>Reduce duplicación, costo de storage y riesgo de versiones desfasadas.</li>
+        <li>Concepto clave en entornos productivos; en el workshop lo documentamos a nivel de diseño (sin implementar cross-account obligatorio).</li>
+      </ul>
+    </section>
+
+    <!-- 14: Redshift ML + Bedrock -->
+    <section class="slide" data-slide="14">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Redshift ML y LLMs con Bedrock</h2>
+      <ul>
+        <li><strong>Redshift ML:</strong> crear y usar modelos de machine learning desde SQL (<code>CREATE MODEL</code>), sin sacar los datos del Data Warehouse. Por debajo se apoya en SageMaker para training/inference clásico.</li>
+        <li><strong>Integración con Amazon Bedrock:</strong> con <code>CREATE EXTERNAL MODEL</code> apuntás a un foundation model (Claude, Titan, Llama, Mistral, etc.) y Redshift genera una función SQL de inference.</li>
+        <li>Invocás el LLM con un <code>SELECT</code> sobre tus tablas: summarization, sentiment analysis, clasificación, traducción, generación de texto.</li>
+        <li>El valor: analytics + GenAI en el mismo lugar — sin exportar datasets a otro servicio solo para enriquecer texto.</li>
+        <li>Hay costo de Bedrock (tokens del modelo) además del compute de Redshift. Vale la pena cuando el dato ya vive en el warehouse.</li>
+      </ul>
+    </section>
+
+    <!-- 15: Sort / Dist -->
+    <section class="slide" data-slide="15">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>SORTKEY y DISTSTYLE</h2>
+      <ul>
+        <li><strong>SORTKEY:</strong> orden físico de los datos. Filtrar por esa columna (ej. fecha) reduce I/O.</li>
+        <li><strong>DISTSTYLE / DISTKEY:</strong> cómo se distribuyen las filas entre nodos. Impacta JOINs grandes.</li>
+        <li>Para este ejercicio: <code>DISTSTYLE AUTO</code> y un <code>SORTKEY</code> alineado al filtro más frecuente.</li>
+        <li>Optimizar dist keys sin entender el workload suele ser prematuro; primero modelo correcto y queries claras.</li>
+      </ul>
+    </section>
+
+    <!-- 15: Arquitectura workshop -->
+    <section class="slide" data-slide="15">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Arquitectura del workshop</h2>
+      <div class="flow">BA Data (S3 raw/curated)
+        ↓
+IAM Role (Redshift → S3)
+        ↓
+Redshift Serverless (Namespace + Workgroup)
+        ↓
+CREATE TABLE + COPY desde S3
+        ↓
+Queries de negocio (JOIN, GROUP BY)
+        ↓
+UNLOAD → S3 analytics/
+        ↓
+REDSHIFT_REPORT.md + cleanup</div>
+    </section>
+
+    <!-- 16: Checklist -->
+    <section class="slide" data-slide="16">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Buenas prácticas</h2>
+      <ul>
+        <li>Cargar con <code>COPY</code>, no con inserts masivos.</li>
+        <li>Preferir Parquet (o CSV limpio) desde curated cuando esté disponible.</li>
+        <li>Configurar base RPU conservadora y monitorear uso.</li>
+        <li>Tags en Namespace/Workgroup: <code>owner</code>, <code>env</code>, <code>workshop</code>.</li>
+        <li>Entender Data Sharing antes de duplicar datasets entre equipos.</li>
+        <li>Documentar en inglés y eliminar Workgroup + Namespace al terminar.</li>
+      </ul>
+    </section>
+
+    <!-- 17: Consola -->
+    <section class="slide highlight-slide" data-slide="17">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>VAMOS A LA CONSOLA</h2>
+      <ul>
+        <li>Prioridad: pipeline end-to-end funcionando.</li>
+        <li>Redshift Serverless, datasets acotados, queries enfocadas.</li>
+        <li>Entregable: <code>REDSHIFT_REPORT.md</code> (inglés + capturas + SQL).</li>
+      </ul>
+    </section>
+
+    <!-- 18: Recursos -->
+    <section class="slide" data-slide="18">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>Recursos y siguientes pasos</h2>
+      <ul>
+        <li>Temas siguientes: Spectrum, Materialized Views, Zero-ETL, dbt sobre Redshift, Data Sharing cross-account, Redshift ML + Bedrock en profundidad.</li>
+        <li>Si una query degrada: revisar <code>EXPLAIN</code>, volumen escaneado y sizing de RPU — en ese orden.</li>
+      </ul>
+      <div class="doc-links">
+        <p><strong>Documentación</strong></p>
+        <p><a href="https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-whatis.html" target="_blank" rel="noopener">Redshift Serverless</a> ·
+           <a href="https://docs.aws.amazon.com/redshift/latest/mgmt/serverless-billing.html" target="_blank" rel="noopener">Billing / RPU</a> ·
+           <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html" target="_blank" rel="noopener">COPY</a> ·
+           <a href="https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html" target="_blank" rel="noopener">UNLOAD</a> ·
+           <a href="https://docs.aws.amazon.com/redshift/latest/dg/datashare-overview.html" target="_blank" rel="noopener">Data Sharing</a> ·
+           <a href="https://docs.aws.amazon.com/redshift/latest/dg/machine-learning-br.html" target="_blank" rel="noopener">Redshift ML + Bedrock</a></p>
+      </div>
+    </section>
+
+    <!-- 19: Cierre -->
+    <section class="slide highlight-slide title-slide" data-slide="19">
+      <div class="brand"><span class="tera">tera</span><span class="cloud-part">cl<svg class="cloud-icon" viewBox="0 0 24 18" fill="none"><path d="M6 14h12a4 4 0 0 0 .5-8 5.5 5.5 0 0 0-10.6-1.2A3.5 3.5 0 0 0 6 14z" fill="#c8f031"/><path d="M12 7v5M12 7l-2 2M12 7l2 2" stroke="#3b0764" stroke-width="1.5" stroke-linecap="round"/></svg>ud</span></div>
+      <h2>¿Alguna pregunta?</h2>
+      <p class="subtitle" style="margin-top: 32px; font-size: 1.4rem;">Gracias por su atención.</p>
+    </section>
+
+  </div>
+
+  <nav class="nav" aria-label="Navegación de slides">
+    <button id="prev" aria-label="Slide anterior">← Anterior</button>
+    <span class="counter"><span id="current">1</span> / <span id="total">19</span></span>
+    <span class="hint">← → o Espacio para navegar</span>
+    <button id="next" aria-label="Slide siguiente">Siguiente →</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    let current = 0;
+
+    document.getElementById('total').textContent = total;
+
+    function showSlide(index) {
+      slides[current].classList.remove('active');
+      current = Math.max(0, Math.min(index, total - 1));
+      slides[current].classList.add('active');
+      document.getElementById('current').textContent = current + 1;
+      document.getElementById('prev').disabled = current === 0;
+      document.getElementById('next').disabled = current === total - 1;
+    }
+
+    document.getElementById('prev').addEventListener('click', () => showSlide(current - 1));
+    document.getElementById('next').addEventListener('click', () => showSlide(current + 1));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        showSlide(current + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        showSlide(current - 1);
+      } else if (e.key === 'Home') {
+        showSlide(0);
+      } else if (e.key === 'End') {
+        showSlide(total - 1);
+      }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        showSlide(diff > 0 ? current + 1 : current - 1);
+      }
+    });
+  </script>
+</body>
+</html> 

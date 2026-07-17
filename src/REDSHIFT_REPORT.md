@@ -299,7 +299,7 @@ Follow these steps to reproduce the warehouse setup and pipeline execution:
 ### Step 1: Prepare the S3 Data Lake
 1. Create an S3 bucket named `workshop-redshift-jip`.
 2. Upload the curated Parquet dataset into the directory: `s3://workshop-redshift-jip/raw/locales-en-venta/`.
-3. Clean the dataset with the ETL created in the previus workshop from GLUE.
+3. Clean the dataset with the ETL created in the previous workshop from GLUE.
 4. Finally we are going to have the cleaned dataset in: `s3://workshop-redshift-jip/curated/locales-en-venta/`
 
 ### Step 2: Configure IAM Permissions
@@ -373,7 +373,7 @@ Follow these steps to reproduce the warehouse setup and pipeline execution:
 Este reporte técnico describe el proceso completo de diseño, carga, consulta y exportación de datos utilizando **Amazon Redshift Serverless**. El proyecto se centró en analizar el conjunto de datos de locales comerciales en venta en la Ciudad de Buenos Aires para el año 2020. 
 
 ### Decisiones de Diseño y Supuestos Clave:
-1. **Infraestructura Serverless:** Se implementó una separación completa entre la capa de cómputo (Workgroup `workshop-wg-jip` configurado a una capacidad base de 8 RPU) y la capa de datos/metadatos (Namespace `workshop-rs-jip`) para reducir al mínimo los costos y evitar cargos de aprovisionamiento inactivo.
+1. **Infraestructura Serverless:** Se implementó una separación completa entre la capa de cómputo (Workgroup `workshop-wg-jip` configurado a una capacidad base de 4 RPU) y la capa de datos/metadatos (Namespace `workshop-rs-jip`) para reducir al mínimo los costos y evitar cargos de aprovisionamiento inactivo.
 2. **Modelo de Datos:** La tabla se configuró con `DISTSTYLE AUTO` para optimización dinámica y `SORTKEY (barrios)` para reducir el escaneo físico de discos al agrupar o filtrar resultados según la zona geográfica.
 3. **Resolución de Errores de Tipos (Spectrum Code 15007):** Se detectó que la lectura estricta de archivos Parquet requería declarar las columnas numéricas de precios y promedios como `DOUBLE PRECISION` en lugar de `DECIMAL`, evitando fallos en tiempo de ejecución por incompatibilidad de escalas decimales.
 4. **Exportación con Restricciones:** Debido a que el comando `UNLOAD` de Redshift no admite nativamente la cláusula `LIMIT` en la consulta principal, se diseñó una subconsulta para ordenar e identificar los 10 barrios con mayor precio por metro cuadrado antes de enviar los datos al Data Lake en S3.
@@ -381,7 +381,7 @@ Este reporte técnico describe el proceso completo de diseño, carga, consulta y
 ### Pasos para la Reproducción:
 Para replicar el laboratorio, se debe:
 1. Subir los archivos Parquet del dataset a un bucket en S3 (`s3://workshop-redshift-jip/raw/locales-en-venta/`).
-2. Ejecutar el ETL creado en el workshop pasado de glue para limpiar el dataset, eliminando duplicados y casteando los tipos de datos.
+2. Ejecutar el ETL creado en el workshop pasado de GLUE para limpiar el dataset, eliminando duplicados y casteando los tipos de datos.
 3. Configurar un rol de IAM con permisos de lectura y escritura acotados al bucket.
 4. Crear el Namespace y Workgroup correspondientes en Amazon Redshift Serverless.
 5. Ejecutar el DDL de creación de tablas, correr el comando `COPY` para ingesta masiva y ejecutar las consultas analíticas y el comando `UNLOAD` para guardar los resultados analíticos en la capa de `analytics/` en S3.
